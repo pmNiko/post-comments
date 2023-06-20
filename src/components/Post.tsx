@@ -9,12 +9,12 @@ import ListSubheader from "@mui/material/ListSubheader";
 import { useState } from "react";
 import { PostProps } from "../interface";
 import { Comments } from "./Comments";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import Favorite from "@mui/icons-material/Favorite";
 
 interface Props {
   post: PostProps;
 }
-
-const label = { inputProps: { "aria-label": "Checkbox demo" } };
 
 export const Post = ({ post }: Props) => {
   const [open, setOpen] = useState(false);
@@ -22,6 +22,8 @@ export const Post = ({ post }: Props) => {
   const handleClick = () => {
     setOpen(!open);
   };
+
+  const label = { inputProps: { "aria-label": `${post.title}` } };
 
   return (
     <List
@@ -37,7 +39,12 @@ export const Post = ({ post }: Props) => {
         <ListSubheader component="div" id="nested-list-subheader">
           <Stack spacing={2} direction="row" alignItems="center">
             <Stack>
-              <Checkbox {...label} defaultChecked />
+              <Checkbox
+                {...label}
+                icon={<FavoriteBorder />}
+                checkedIcon={<Favorite />}
+                color="error"
+              />
             </Stack>
             <Stack sx={{ minWidth: 0 }}>
               <Typography noWrap>{post.title}</Typography>
