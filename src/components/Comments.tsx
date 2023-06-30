@@ -10,39 +10,59 @@ import { ChangeEvent, useEffect, useState } from "react";
 
 interface Props {
   postId: number;
-  toggleChecked: () => void;
+  likeAll: () => void;
+  unlikeAll: () => void;
+  checkAll: boolean;
 }
 
 interface LikeComments {
-  [key: number]: string;
+  [key: string]: string;
 }
 
-export const Comments = ({ postId, toggleChecked }: Props) => {
+export const Comments = ({ postId, likeAll, unlikeAll, checkAll }: Props) => {
   const [likeComments, setLikeComments] = useState({} as LikeComments);
+
   const { loading, comments } = useGetComments(postId);
 
   const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
-    const comment = comments.filter(
-      (element) => element.id.toString() === target.name
-    )[0];
-
     if (target.checked) {
-      setLikeComments({
-        ...likeComments,
-        [comment.id]: comment.name,
-      });
+      setLikeComments({ ...likeComments, [target.id]: target.value });
     } else {
-      const { [comment.id]: toDelete, ...restLiked } = likeComments;
+      const { [target.id]: toDelete, ...restLiked } = likeComments;
 
-      setLikeComments({
-        ...restLiked,
-      });
+      setLikeComments({ ...restLiked });
     }
   };
 
+  const commentIsLiked = (id: string) => Object.keys(likeComments).includes(id);
+
+  const resetLikeComments = () => setLikeComments({});
+
   useEffect(() => {
-    console.table(likeComments);
+    if (
+      comments.length > 0 &&
+      comments.length === Object.entries(likeComments).length
+    ) {
+      likeAll();
+    } else {
+      unlikeAll();
+    }
+
+    console.log(likeComments);
   }, [likeComments]);
+
+  useEffect(() => {
+    if (checkAll) {
+      const likes = comments.reduce(
+        (obj, comment) => ({ ...obj, [comment.id]: comment.email }),
+        {}
+      );
+
+      setLikeComments({ ...likes });
+    } else {
+      resetLikeComments();
+    }
+  }, [checkAll]);
 
   return (
     <>
@@ -52,19 +72,22 @@ export const Comments = ({ postId, toggleChecked }: Props) => {
         </Box>
       ) : (
         <FormGroup>
-          {comments.map((comment) => (
+          {comments.map(({ id, name, email }) => (
             <FormControlLabel
-              key={comment.id}
+              key={id}
               control={
                 <Checkbox
-                  name={comment.id.toString()}
+                  id={`${id}`}
+                  name={`${name}`}
+                  value={`${email}`}
                   icon={<FavoriteBorder />}
                   checkedIcon={<Favorite />}
                   color="error"
                   onChange={handleChange}
+                  checked={commentIsLiked(`${id}`)}
                 />
               }
-              label={comment.name}
+              label={name}
             />
           ))}
         </FormGroup>

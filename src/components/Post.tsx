@@ -18,14 +18,10 @@ interface Props {
 
 export const Post = ({ post }: Props) => {
   const [open, setOpen] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [checkAll, setCheckAll] = useState(false);
 
   const handleClick = () => {
     setOpen(!open);
-  };
-
-  const toggleChecked = () => {
-    setChecked(!checked);
   };
 
   const label = { inputProps: { "aria-label": `${post.title}` } };
@@ -49,8 +45,8 @@ export const Post = ({ post }: Props) => {
                 icon={<FavoriteBorder />}
                 checkedIcon={<Favorite />}
                 color="error"
-                onChange={toggleChecked}
-                value={checked}
+                onChange={() => setCheckAll(!checkAll)}
+                checked={checkAll}
               />
             </Stack>
             <Stack sx={{ minWidth: 0 }}>
@@ -70,7 +66,9 @@ export const Post = ({ post }: Props) => {
             <Comments
               key={post.id}
               postId={post.id}
-              toggleChecked={toggleChecked}
+              likeAll={() => setCheckAll(true)}
+              unlikeAll={() => setCheckAll(false)}
+              checkAll={checkAll}
             />
           </ListItemButton>
         </List>
