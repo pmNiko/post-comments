@@ -1,6 +1,6 @@
 import { PostProps } from "../interface";
 
-const uri = "https://jsonplaceholder.typicode.com/posts?_limit=3";
+const uri = "https://jsonplaceholder.typicode.com/posts?_limit=1";
 
 const getPosts = async (): Promise<PostProps[]> => {
   const resp = await fetch(uri);

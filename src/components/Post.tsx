@@ -6,7 +6,7 @@ import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import ListSubheader from "@mui/material/ListSubheader";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PostProps } from "../interface";
 import { Comments } from "./Comments";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
@@ -19,6 +19,7 @@ interface Props {
 export const Post = ({ post }: Props) => {
   const [open, setOpen] = useState(false);
   const [checkAll, setCheckAll] = useState(false);
+  const [isAllChecked, setIsAllChecked] = useState(false);
 
   const handleClick = () => {
     setOpen(!open);
@@ -46,7 +47,7 @@ export const Post = ({ post }: Props) => {
                 checkedIcon={<Favorite />}
                 color="error"
                 onChange={() => setCheckAll(!checkAll)}
-                checked={checkAll}
+                checked={checkAll && isAllChecked}
               />
             </Stack>
             <Stack sx={{ minWidth: 0 }}>
@@ -67,7 +68,7 @@ export const Post = ({ post }: Props) => {
               key={post.id}
               postId={post.id}
               likeAll={() => setCheckAll(true)}
-              unlikeAll={() => setCheckAll(false)}
+              setIsAllChecked={setIsAllChecked}
               checkAll={checkAll}
             />
           </ListItemButton>
