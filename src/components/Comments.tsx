@@ -1,103 +1,54 @@
-import FormGroup from "@mui/material/FormGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
-import CircularProgress from "@mui/material/CircularProgress";
-import Box from "@mui/material/Box";
-import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
 import Favorite from "@mui/icons-material/Favorite";
-import { useGetComments } from "../hooks/useGetComments";
-import {
-  ChangeEvent,
-  Dispatch,
-  SetStateAction,
-  useEffect,
-  useState,
-} from "react";
+import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import Checkbox from "@mui/material/Checkbox";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import FormGroup from "@mui/material/FormGroup";
+import { ChangeEvent, useEffect } from "react";
+import { CommentProps } from "../interface";
+import { useSelectStore } from "../store/SelectStore";
 
 interface Props {
-  postId: number;
-  likeAll: () => void;
-  setIsAllChecked: Dispatch<SetStateAction<boolean>>;
-  checkAll: boolean;
+  comments: CommentProps[];
 }
 
-interface LikeComments {
-  [key: string]: string;
-}
+export const Comments = ({ comments }: Props) => {
+  const loadMaxLikes = useSelectStore((state) => state.loadMaxLikes);
+  const check = useSelectStore((state) => state.check);
+  const uncheck = useSelectStore((state) => state.uncheck);
+  const likeComments = useSelectStore((state) => state.likeComments);
 
-export const Comments = ({
-  postId,
-  likeAll,
-  setIsAllChecked,
-  checkAll,
-}: Props) => {
-  const [likeComments, setLikeComments] = useState({} as LikeComments);
-  const { loading, comments } = useGetComments(postId);
+  const isLiked = (id: string) => Object.keys(likeComments).includes(id);
 
-  const commentIsLiked = (id: string) => Object.keys(likeComments).includes(id);
-
-  const selectAllComents = () => {
-    const likes = comments.reduce(
-      (obj, comment) => ({ ...obj, [comment.id]: comment.email }),
-      {}
-    );
-    setLikeComments({ ...likes });
-  };
-
-  const resetLikeComments = () => setLikeComments({});
-
-  const isAllCommentSelected = () => comments.length === countLikeComments();
-
-  const countLikeComments = () => Object.entries(likeComments).length;
-
-  const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
-    if (target.checked) {
-      setLikeComments({ ...likeComments, [target.id]: target.value });
-    } else {
-      const { [target.id]: toDelete, ...restLiked } = likeComments;
-      setLikeComments({ ...restLiked });
-    }
+  const handleChange = ({
+    target: { checked, id, value },
+  }: ChangeEvent<HTMLInputElement>) => {
+    checked ? check(id, value) : uncheck(id);
   };
 
   useEffect(() => {
-    if (comments.length > 0) {
-      isAllCommentSelected() && likeAll();
-      setIsAllChecked(isAllCommentSelected());
-    }
-  }, [likeComments]);
-
-  useEffect(() => {
-    checkAll ? selectAllComents() : resetLikeComments();
-  }, [checkAll]);
+    loadMaxLikes(comments.length);
+  }, [comments]);
 
   return (
-    <>
-      {loading ? (
-        <Box sx={{ display: "flex" }}>
-          <CircularProgress />
-        </Box>
-      ) : (
-        <FormGroup>
-          {comments.map(({ id, name, email }) => (
-            <FormControlLabel
-              key={id}
-              control={
-                <Checkbox
-                  id={`${id}`}
-                  name={`${name}`}
-                  value={`${email}`}
-                  icon={<FavoriteBorder />}
-                  checkedIcon={<Favorite />}
-                  color="error"
-                  onChange={handleChange}
-                  checked={commentIsLiked(`${id}`)}
-                />
-              }
-              label={name}
+    <FormGroup>
+      {comments.map(({ id, name, email }) => (
+        <FormControlLabel
+          key={id}
+          control={
+            <Checkbox
+              id={`${id}`}
+              name={`${name}`}
+              value={`${email}`}
+              icon={<FavoriteBorder />}
+              checkedIcon={<Favorite />}
+              color="error"
+              onChange={handleChange}
+              checked={isLiked(`${id}`)}
             />
-          ))}
-        </FormGroup>
-      )}
-    </>
+          }
+          label={name}
+        />
+      ))}
+    </FormGroup>
   );
 };
